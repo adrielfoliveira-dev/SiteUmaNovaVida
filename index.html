@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nova Saúde — Protocolo de 90 Dias | Guia digital de organização alimentar</title>
+    <meta name="description" content="Kit digital de organização alimentar: guia de 90 dias, planejador semanal de refeições, lista de compras, checklist de hábitos e aplicativo de apoio. Planejamento para a vida real." />
+    
+    <!-- Open Graph / Meta Ads / Social -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta name="theme-color" content="#294C3A" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:title" content="Nova Saúde — Protocolo de 90 Dias | Kit digital de organização alimentar" />
+    <meta property="og:description" content="Planejamento semanal, lista de compras, hábitos sustentáveis e um aplicativo de apoio. Mais do que um guia: um conjunto de ferramentas." />
+    <meta property="og:image" content="https://umanovavidahoje.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://umanovavidahoje.com/" />
+    <meta name="twitter:image" content="https://umanovavidahoje.com/og-image.png" />
+    <link rel="canonical" href="https://umanovavidahoje.com/" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              sage: {
+                50: '#F4F7F4',
+                100: '#E6ECE6',
+                300: '#A3B8A6',
+                500: '#78947B',
+                700: '#4A614D',
+                900: '#294C3A',
+              },
+              cream: '#EFE8D5',
+              darkGreen: '#294C3A',
+              softGray: '#38423A'
+            },
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="bg-[#EFE8D5] text-[#294C3A] font-sans antialiased selection:bg-[#78947B] selection:text-white">
+    <div id="root"></div>
+
+    <!-- React and ReactDOM CDN -->
+    <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Application Code -->
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      // CONFIGURAÇÃO CENTRALIZADA (EDITÁVEL)
+      const SITE_CONFIG = {
+        productName: "Nova Saúde — Protocolo de 90 Dias",
+        price: "35,00",
+        currency: "R$",
+        checkoutUrl: "https://pay.kiwify.com.br/Q59UUXK",
+        appUrl: "https://adrielfolivera-dev.github.io/novavidaapp/",
+        includeRecipes: false, // mude para true SOMENTE se as Receitas Práticas estiverem no pacote final
+        appFeatures: [], // preencha com funcionalidades CONFIRMADAS do app, ex.: ["Acompanhar hábitos"]
+        supportEmail: "suporte@novasaude.com.br",
+        companyName: "Nova Saúde Educação Digital",
+        analytics: {
+          metaPixelId: "",
+          ga4MeasurementId: "",
+          googleAdsId: ""
+        }
+      };
+
+      const trackEvent = (eventName, params = {}) => {
+        console.log(`[Event Tracked]: ${eventName}`, params);
+        if (window.fbq && SITE_CONFIG.analytics.metaPixelId) {
+          window.fbq('track', eventName, params);
+        }
+        if (window.gtag && SITE_CONFIG.analytics.ga4MeasurementId) {
+          window.gtag('event', eventName, params);
+        }
+      };
+
+      function App() {
+        const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const [openFaq, setOpenFaq] = useState(null);
+        
+        useEffect(() => {
+          if (window.lucide) {
+            window.lucide.createIcons();
+          }
+        }, [openFaq, isMenuOpen]);
+
+        const trackBuy = () => trackEvent('InitiateCheckout', { value: 35, currency: 'BRL' });
+
+        const toggleFaq = (index) => {
+          setOpenFaq(openFaq === index ? null : index);
+        };
+
+        return (
+          <div className="min-h-screen flex flex-col justify-between">
+            
+            {/* SEÇÃO 1 — CABEÇALHO */}
+            <header className="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-sage-100">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+                <a href="#" className="flex items-center gap-2 text-2xl font-serif font-bold text-sage-900 tracking-tight">
+                  <span className="w-8 h-8 rounded-full bg-sage-500 flex items-center justify-center text-cream text-sm">NS</span>
+                  Nova Saúde
+                </a>
+
+                <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-sage-900">
+                  <a href="#como-funciona" className="hover:text-sage-500 transition">Como funciona</a>
+                  <a href="#aplicativo" className="hover:text-sage-500 transition">Aplicativo</a>
+                  <a href="#o-que-recebe" className="hover:text-sage-500 transition">O que você recebe</a>
+                  <a href="#faq" className="hover:text-sage-500 transition">Perguntas frequentes</a>
+                </nav>
+
+                <div className="hidden md:block">
+                  <a 
+                    href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy}
+                    className="px-5 py-2.5 rounded-full bg-sage-900 text-white font-medium text-sm hover:bg-sage-700 transition shadow-sm"
+                  >
+                    Comprar agora
+                  </a>
+                </div>
+
+                <button 
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="md:hidden p-2 text-sage-900 focus:outline-none"
+                  aria-label="Abrir menu"
+                >
+                  <i data-lucide={isMenuOpen ? "x" : "menu"} className="w-6 h-6"></i>
+                </button>
+              </div>
+
+              {isMenuOpen && (
+                <div className="md:hidden bg-cream border-b border-sage-100 px-6 py-4 space-y-4">
+                  <a href="#como-funciona" onClick={() => setIsMenuOpen(false)} className="block text-sage-900 font-medium">Como funciona</a>
+                  <a href="#o-que-recebe" onClick={() => setIsMenuOpen(false)} className="block text-sage-900 font-medium">O que você recebe</a>
+                  <a href="#faq" onClick={() => setIsMenuOpen(false)} className="block text-sage-900 font-medium">Perguntas frequentes</a>
+                  <a 
+                    href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy}
+                    
+                    className="block w-full text-center py-3 rounded-xl bg-sage-900 text-white font-medium text-sm"
+                  >
+                    Comprar agora
+                  </a>
+                </div>
+              )}
+            </header>
+
+            <main>
+              {/* SEÇÃO 2 — HERO PRINCIPAL COM FOTOGRAFIA EDITORIAL */}
+              <section className="pt-12 pb-20 md:py-24 bg-gradient-to-b from-cream via-sage-50/50 to-cream">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                  <div className="grid md:grid-cols-12 gap-12 items-center">
+                    
+                    <div className="md:col-span-7 space-y-6 text-center md:text-left">
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sage-300 text-sage-900 text-xs font-bold tracking-wide uppercase">
+                        <i data-lucide="sparkles" className="w-3.5 h-3.5 text-sage-500"></i> Organização & Planejamento Alimentar
+                      </div>
+                      
+                      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-sage-900 leading-tight">
+                        Comer melhor não precisa custar caro.
+                      </h1>
+                      
+                      <p className="text-lg sm:text-xl text-sage-900 font-medium leading-relaxed">
+                        Organize sua alimentação, planeje suas compras e construa hábitos mais saudáveis com um método prático pensado para a vida real.
+                      </p>
+                      
+                      <p className="text-sm sm:text-base text-softGray leading-relaxed">
+                        Um guia digital para ajudar você a sair da improvisação, aproveitar melhor seu orçamento e criar uma rotina alimentar mais organizada, um passo de cada vez.
+                      </p>
+
+                      <div className="pt-2 space-y-3">
+                        <a 
+                          href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy}
+                          className="inline-block w-full sm:w-auto px-8 py-4 rounded-xl bg-sage-900 text-white font-semibold text-base shadow-lg shadow-sage-900/10 hover:bg-sage-700 transition transform active:scale-95 text-center"
+                        >
+                          QUERO O NOVA SAÚDE POR R$ 35,00
+                        </a>
+                        <p className="text-xs text-softGray flex items-center justify-center md:justify-start gap-1.5">
+                          <i data-lucide="shield-check" className="w-4 h-4 text-sage-500"></i>
+                          Material digital educativo • Acesso imediato via formato PDF.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* MOCKUP EDITORIAL 3D DO E-BOOK E SUPORTES */}
+                    <div className="md:col-span-5 flex justify-center">
+                      <div className="relative w-full max-w-md">
+                        <div className="absolute -inset-2 bg-gradient-to-tr from-sage-300/40 to-sage-500/20 rounded-3xl blur-xl"></div>
+                        
+                        <div className="relative bg-white p-6 rounded-2xl shadow-2xl border border-sage-200 space-y-4">
+                          <div className="relative overflow-hidden rounded-xl shadow-inner aspect-[4/3]">
+                            <img 
+                              src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=800" 
+                              alt="Mesa organizada com alimentos frescos e planejamento diário" 
+                              className="w-full h-full object-cover transform hover:scale-105 transition duration-700"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-sage-900/60 via-transparent to-transparent flex items-end p-4">
+                              <span className="text-white font-serif font-medium text-sm">Edição Prática • 90 Dias</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 pt-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-sage-700 uppercase tracking-wider">Kit Completo Digital</span>
+                              <span className="text-xs font-semibold bg-sage-100 text-sage-900 px-2.5 py-0.5 rounded-full">PDF + Planilhas</span>
+                            </div>
+                            <h3 className="font-serif font-bold text-xl text-sage-900">Nova Saúde — Protocolo de 90 Dias</h3>
+                            <p className="text-xs text-softGray leading-relaxed">Inclui o Guia Principal + Planejador Semanal, Lista de Compras, Rastreador de Hábitos, Planilhas de Despensa e o Aplicativo Nova Saúde.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 3 — IDENTIFICAÇÃO COM O PROBLEMA */}
+              <section className="py-16 sm:py-24 bg-sage-100 border-y border-sage-300">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-12">
+                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-sage-900">
+                      Você quer se alimentar melhor, mas sente dificuldade para manter a rotina?
+                    </h2>
+                    <p className="text-softGray max-w-2xl mx-auto">
+                      Mudanças sustentáveis não exigem perfeição, mas sim um método funcional para o dia a dia.
+                    </p>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {[
+                      "Não saber o que preparar durante a semana e recorrer ao improviso.",
+                      "Fazer compras sem planejamento e desperdiçar alimentos na geladeira.",
+                      "Acreditar que comer de forma equilibrada exige ingredientes caros.",
+                      "Startar mudanças drásticas e abandonar tudo após poucos dias.",
+                      "Dificuldade de organizar as refeições em meio a rotinas corridas.",
+                      "Sentir a pressão de precisar fazer tudo perfeitamente para ver sentido."
+                    ].map((item, idx) => (
+                      <div key={idx} className="p-4 rounded-xl bg-white border border-sage-300 flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                          <i data-lucide="x" className="w-3.5 h-3.5"></i>
+                        </div>
+                        <span className="text-sm text-sage-900 font-medium leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-12 p-6 rounded-2xl bg-sage-50 border border-sage-300 text-center space-y-3">
+                    <p className="text-base text-sage-900 font-medium">
+                      O <strong>Nova Saúde</strong> foi desenhado justamente para eliminar essa sobrecarga. O foco não é impor restrições, mas oferecer um caminho prático de organização.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 4 — APRESENTAÇÃO DA SOLUÇÃO */}
+              <section id="como-funciona" className="py-16 sm:py-24 bg-cream">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-16">
+                    <span className="text-xs font-bold text-sage-700 uppercase tracking-widest">A Abordagem</span>
+                    <h2 className="text-3xl sm:text-4xl font-serif font-bold text-sage-900">
+                      Um plano mais simples para cuidar da sua rotina.
+                    </h2>
+                    <p className="text-softGray max-w-2xl mx-auto">
+                      Transforme boas intenções em ações práticas diárias através de 3 pilares fundamentais.
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-8">
+                    <div className="bg-white p-8 rounded-2xl border border-sage-100 shadow-sm hover:shadow-md transition">
+                      <img src="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&q=80&w=500" alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-32 object-cover rounded-xl mb-5" />
+                      <div className="w-12 h-12 bg-sage-100 text-sage-900 rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="calendar" className="w-6 h-6"></i>
+                      </div>
+                      <h3 className="text-xl font-bold text-sage-900 mb-3">1. Organização Alimentar</h3>
+                      <p className="text-sm text-softGray leading-relaxed">
+                        Aprenda a planejar refeições e organizar o cardápio da semana com clareza, evitando surpresas no final do dia.
+                      </p>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-2xl border border-sage-100 shadow-sm hover:shadow-md transition">
+                      <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=500" alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-32 object-cover rounded-xl mb-5" />
+                      <div className="w-12 h-12 bg-sage-100 text-sage-900 rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="shopping-cart" className="w-6 h-6"></i>
+                      </div>
+                      <h3 className="text-xl font-bold text-sage-900 mb-3">2. Economia no Mercado</h3>
+                      <p className="text-sm text-softGray leading-relaxed">
+                        Utilize modelos de listas de compras e estratégias inteligentes para comprar exatamente o necessário e evitar desperdícios.
+                      </p>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-2xl border border-sage-100 shadow-sm hover:shadow-md transition">
+                      <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=500" alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-32 object-cover rounded-xl mb-5" />
+                      <div className="w-12 h-12 bg-sage-100 text-sage-900 rounded-xl flex items-center justify-center mb-6">
+                        <i data-lucide="repeat" className="w-6 h-6"></i>
+                      </div>
+                      <h3 className="text-xl font-bold text-sage-900 mb-3">3. Hábitos Sustentáveis</h3>
+                      <p className="text-sm text-softGray leading-relaxed">
+                        Desenvolva uma rotina possível, baseada em pequenas metas e com flexibilidade para adaptar-se à sua realidade.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO — GALERIA DE ALIMENTOS */}
+              <section className="py-16 sm:py-20 bg-sage-100 border-y border-sage-300">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-3 mb-10">
+                    <h2 className="text-3xl sm:text-4xl font-serif font-bold text-sage-900">Alimentos do dia a dia, organizados com método.</h2>
+                    <p className="text-sage-900 font-medium max-w-2xl mx-auto">Frutas, legumes, grãos e refeições simples: o planejamento ajuda você a aproveitar melhor o que já faz parte da sua rotina.</p>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    {[
+                      ["photo-1540420773420-3366772f4999","Legumes e verduras frescos","Verduras"],
+                      ["photo-1512621776951-a57141f2eefd","Prato colorido com vegetais","Refeições coloridas"],
+                      ["photo-1490645935967-10de6ba17061","Bowl com alimentos naturais","Pratos simples"],
+                      ["photo-1567306226416-28f0efdc88ce","Frutas e legumes na feira","Compras conscientes"],
+                      ["photo-1498837167922-ddd27525d352","Refeição caseira organizada","Rotina possível"],
+                      ["photo-1546069901-ba9599a7e63c","Salada fresca","Preparo prático"],
+                      ["photo-1506484381205-f7945653044d","Despensa organizada","Despensa em ordem"],
+                      ["photo-1511690743698-d9d85f2fbf38","Mesa com alimentos saudáveis","Mesa equilibrada"]
+                    ].map(([id, alt, cap]) => (
+                      <figure key={id} className="relative rounded-2xl overflow-hidden aspect-square shadow-md bg-sage-300">
+                        <img src={`https://images.unsplash.com/${id}?auto=format&fit=crop&q=80&w=500`} alt={alt} loading="lazy" onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }} className="w-full h-full object-cover" />
+                        <figcaption className="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-sage-900/85 to-transparent text-white text-xs sm:text-sm font-semibold">{cap}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO — APLICATIVO NOVA SAÚDE */}
+              <section id="aplicativo" className="py-16 sm:py-24 bg-sage-900 text-white overflow-hidden">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
+                  <div className="space-y-6 text-center lg:text-left">
+                    <span className="inline-block text-xs font-bold bg-white/10 px-3.5 py-1.5 rounded-full tracking-wide">Diferencial digital</span>
+                    <h2 className="text-3xl sm:text-4xl font-serif font-bold leading-tight">Muito mais que um guia: uma experiência digital para acompanhar sua rotina.</h2>
+                    <p className="text-sage-100/85 text-lg leading-relaxed">Além dos materiais digitais, você também conta com um aplicativo de apoio para organizar seus hábitos e acompanhar seu planejamento de forma prática.</p>
+                    {SITE_CONFIG.appFeatures.length > 0 && (
+                      <ul className="space-y-2 text-left max-w-md mx-auto lg:mx-0">
+                        {SITE_CONFIG.appFeatures.map((f, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm"><i data-lucide="check" className="w-4 h-4 text-sage-300"></i> {f}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <p className="text-xs text-sage-100/70">O aplicativo é uma ferramenta complementar ao protocolo e não substitui acompanhamento profissional.</p>
+                    <a href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy} className="inline-block px-8 py-4 rounded-xl bg-white text-sage-900 font-bold hover:bg-sage-50 transition shadow-lg">CONHECER O APLICATIVO</a>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      <div className="absolute -inset-6 bg-sage-500/30 blur-3xl rounded-full"></div>
+                      <div className="relative w-64 bg-black rounded-[2.5rem] p-2.5 shadow-2xl border border-white/10">
+                        <div className="bg-cream rounded-[2rem] overflow-hidden text-sage-900 h-[30rem]">
+                          <div className="mx-auto mt-2 w-16 h-1.5 rounded-full bg-sage-300"></div>
+                          <div className="px-4 pt-3 space-y-3">
+                            <p className="font-serif font-bold text-lg">Nova Saúde</p>
+                            <div className="h-28 rounded-2xl overflow-hidden relative">
+                              <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=500" alt="Prévia ilustrativa do aplicativo Nova Saúde" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-sage-900/70 to-transparent flex items-end p-3 text-white text-xs font-semibold">Sua rotina organizada</div>
+                            </div>
+                            {[0,1,2,3].map(i => (
+                              <div key={i} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-sage-100">
+                                <div className={"w-5 h-5 rounded-md " + (i < 2 ? "bg-sage-500" : "border-2 border-sage-300")}></div>
+                                <div className="h-2 flex-1 rounded-full bg-sage-100"></div>
+                              </div>
+                            ))}
+                            <p className="text-[10px] text-center text-softGray">Prévia ilustrativa</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 5 — COMO FUNCIONAM OS 90 DIAS COM IMAGENS TEMÁTICAS */}
+              <section className="py-16 sm:py-24 bg-sage-100 border-y border-sage-300">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-16">
+                    <h2 className="text-3xl sm:text-4xl font-serif font-bold text-sage-900">
+                      Como funcionam os 90 Dias
+                    </h2>
+                    <p className="text-softGray max-w-2xl mx-auto text-sm sm:text-base">
+                      Uma jornada pedagógica dividida em três fases progressivas de aprendizado e consolidação.
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-8">
+                    {/* Fase 1 */}
+                    <div className="bg-cream/50 rounded-2xl border border-sage-200 overflow-hidden flex flex-col">
+                      <div className="h-40 overflow-hidden relative">
+                        <img 
+                          src="https://images.unsplash.com/photo-1506484381205-f7945653044d?auto=format&fit=crop&q=80&w=600" 
+                          alt="Organização da despensa e planejamento inicial" 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3">
+                          <span className="text-xs font-bold bg-sage-900 text-white px-3 py-1 rounded-full shadow">FASE 1</span>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-sage-900 mb-2">Dias 1 a 30: Organizar</h3>
+                          <ul className="space-y-1.5 text-xs text-softGray">
+                            <li>• Avaliar a rotina e despensa atual</li>
+                            <li>• Definir metas pessoais de organização</li>
+                            <li>• Primeiros planejamentos de compras</li>
+                            <li>• Iniciar mudanças realistas</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Fase 2 */}
+                    <div className="bg-cream/50 rounded-2xl border border-sage-200 overflow-hidden flex flex-col">
+                      <div className="h-40 overflow-hidden relative">
+                        <img 
+                          src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600" 
+                          alt="Preparação de refeições e uso dos planejadores" 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3">
+                          <span className="text-xs font-bold bg-sage-700 text-white px-3 py-1 rounded-full shadow">FASE 2</span>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-sage-900 mb-2">Dias 31 a 60: Consolidar</h3>
+                          <ul className="space-y-1.5 text-xs text-softGray">
+                            <li>• Revisar o que funcionou no mês 1</li>
+                            <li>• Ajustar o fluxo de refeições da semana</li>
+                            <li>• Aprender a lidar com imprevistos</li>
+                            <li>• Reforçar hábitos práticos</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Fase 3 */}
+                    <div className="bg-cream/50 rounded-2xl border border-sage-200 overflow-hidden flex flex-col">
+                      <div className="h-40 overflow-hidden relative">
+                        <img 
+                          src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=600" 
+                          alt="Rotina organizada e manutenção de hábitos" 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-3 left-3">
+                          <span className="text-xs font-bold bg-sage-500 text-white px-3 py-1 rounded-full shadow">FASE 3</span>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-sage-900 mb-2">Dias 61 a 90: Sustentar</h3>
+                          <ul className="space-y-1.5 text-xs text-softGray">
+                            <li>• Avaliar o progresso de hábitos</li>
+                            <li>• Consolidar a rotina de manutenção</li>
+                            <li>• Autonomia para o planejamento futuro</li>
+                            <li>• Próximos passos sustentáveis</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="mt-8 text-center text-xs text-softGray">
+                    * Os 90 dias representam a estrutura metodológica do guia educativo e não uma garantia de resultados físicos ou clínicos.
+                  </p>
+                </div>
+              </section>
+
+              {/* SEÇÃO 6 — O QUE O CLIENTE RECEBE COM PRÉVIAS VISUAIS DEDICADAS */}
+              <section id="o-que-recebe" className="py-16 sm:py-24 bg-cream">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-16">
+                    <span className="text-xs font-bold text-sage-700 uppercase tracking-widest">Conteúdo do Pacote</span>
+                    <h2 className="text-3xl sm:text-4xl font-serif font-bold text-sage-900">
+                      Um kit completo para organizar sua rotina — não apenas mais um PDF.
+                    </h2>
+                    <p className="text-softGray max-w-2xl mx-auto text-sm sm:text-base">
+                      Você recebe materiais práticos e uma experiência digital complementar para apoiar seu planejamento no dia a dia.
+                    </p>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[
+                      { 
+                        title: "Guia Digital Nova Saúde", 
+                        desc: "Manual completo com os conceitos fundamentais para estruturar sua rotina.", 
+                        img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=400",
+                        tag: "E-book principal"
+                      },
+                      { 
+                        title: "Planejador Semanal de Refeições", 
+                        desc: "Modelo prático para definir os cardápios da semana com antecedência.", 
+                        img: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=400",
+                        tag: "Planilha PDF"
+                      },
+                      { 
+                        title: "Modelo de Lista de Compras", 
+                        desc: "Estrutura organizada por seções de supermercado para evitar compras por impulso.", 
+                        img: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&q=80&w=400",
+                        tag: "Checklist Prático"
+                      },
+                      { 
+                        title: "Checklist de Hábitos", 
+                        desc: "Acompanhamento visual para fortalecer pequenas metas diárias de organização.", 
+                        img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=400",
+                        tag: "Rastreador"
+                      },
+                      { 
+                        title: "Planejador de Orçamento & Despensa", 
+                        desc: "Ferramenta para mapear o que você já tem em casa e economizar.", 
+                        img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
+                        tag: "Organização Financeira"
+                      },
+                      { 
+                        title: "Folhas de Revisão (30, 60 e 90 dias)", 
+                        desc: "Questionários práticos de autoavaliação para medir sua evolução na rotina.", 
+                        img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=400",
+                        tag: "Avaliação Pessoal"
+                      },
+                      { title: "Aplicativo Nova Saúde", desc: "Ferramenta complementar para organizar seus hábitos e acompanhar seu planejamento de forma prática.", img: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=400", tag: "Diferencial digital", footer: "Aplicativo complementar" },
+                      ...(SITE_CONFIG.includeRecipes ? [{ title: "Receitas Práticas", desc: "Receitas simples para colocar o planejamento em prática.", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=400", tag: "Receitas" }] : [])
+                    ].map((item, idx) => (
+                      <div key={idx} className="bg-white rounded-2xl border border-sage-100 overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div className="h-36 overflow-hidden relative">
+                          <img src={item.img} alt={item.title} className="w-full h-full object-cover opacity-90" />
+                          <div className="absolute top-2 right-2">
+                            <span className="text-[10px] font-bold bg-white/90 backdrop-blur-sm text-sage-900 px-2 py-1 rounded shadow-sm">{item.tag}</span>
+                          </div>
+                        </div>
+                        <div className="p-6 space-y-2 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-bold text-sage-900 mb-1">{item.title}</h3>
+                            <p className="text-xs text-softGray leading-relaxed">{item.desc}</p>
+                          </div>
+                          <span className="pt-3 text-[10px] text-sage-500 font-semibold uppercase tracking-wider block border-t border-sage-50">{item.footer || "Formato PDF Digital"}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 7 — BENEFÍCIOS PRÁTICOS */}
+              <section className="py-16 sm:py-24 bg-sage-100 border-y border-sage-300">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-12">
+                    <h2 className="text-3xl font-serif font-bold text-sage-900">
+                      Benefícios práticos para o seu dia a dia
+                    </h2>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {[
+                      "Ter um ponto de partida simples e estruturado.",
+                      "Planejar refeições sem complicação.",
+                      "Fazer compras de supermercado mais conscientes.",
+                      "Ideias para aproveitar melhor os alimentos e evitar desperdício.",
+                      "Reduzir a ansiedade e a improvisação na hora de cozinhar.",
+                      "Acompanhar visualmente a evolução dos seus hábitos.",
+                      "Aprender a retomar o planejamento sem culpa após imprevistos."
+                    ].map((beneficio, idx) => (
+                      <div key={idx} className="flex items-start gap-3 p-3">
+                        <div className="w-5 h-5 rounded-full bg-sage-100 text-sage-700 flex items-center justify-center shrink-0 mt-0.5">
+                          <i data-lucide="check" className="w-3.5 h-3.5"></i>
+                        </div>
+                        <span className="text-sm text-sage-900 font-medium leading-relaxed">{beneficio}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 8 — SOBRE A MARCA E MOTIVAÇÃO */}
+              <section className="py-16 sm:py-24 bg-cream">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6">
+                  <div className="bg-white p-8 sm:p-12 rounded-3xl border border-sage-100 shadow-sm grid md:grid-cols-12 gap-8 items-center">
+                    <div className="md:col-span-4 flex justify-center">
+                      <div className="w-36 h-36 rounded-full bg-sage-100 border-2 border-sage-300 flex items-center justify-center text-sage-700">
+                        <i data-lucide="heart" className="w-12 h-12"></i>
+                      </div>
+                    </div>
+                    <div className="md:col-span-8 space-y-4 text-center md:text-left">
+                      <span className="text-xs font-bold text-sage-700 uppercase tracking-wider">Sobre a Iniciativa</span>
+                      <h2 className="text-2xl font-serif font-bold text-sage-900">Por que o Nova Saúde existe?</h2>
+                      <p className="text-sm text-softGray leading-relaxed">
+                        “A Nova Saúde nasceu da vontade de tornar a organização alimentar mais simples e acessível. Acreditamos que pequenas mudanças, quando adaptadas à realidade de cada pessoa, podem ajudar a construir uma rotina mais consciente e sustentável.”
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 9 — PARA QUEM É E PARA QUEM NÃO É */}
+              <section className="py-16 sm:py-24 bg-sage-100 border-b border-sage-300">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-16">
+                    <h2 className="text-3xl font-serif font-bold text-sage-900">
+                      O Nova Saúde é adequado para você?
+                    </h2>
+                    <p className="text-softGray max-w-xl mx-auto text-sm">
+                      Prezamos pela transparência para que você faça uma compra consciente.
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                    {/* Para quem é */}
+                    <div className="p-8 rounded-2xl bg-sage-50/60 border border-sage-200 space-y-4">
+                      <div className="flex items-center gap-2 text-sage-900 font-bold text-lg">
+                        <i data-lucide="check-circle-2" className="w-6 h-6 text-sage-500"></i>
+                        <h3>Para quem É:</h3>
+                      </div>
+                      <ul className="space-y-3 text-sm text-sage-900">
+                        <li className="flex items-start gap-2">• Adultos que desejam organizar melhor a alimentação.</li>
+                        <li className="flex items-start gap-2">• Pessoas que procuram opções práticas e econômicas.</li>
+                        <li className="flex items-start gap-2">• Quem deseja planejar compras e refeições com clareza.</li>
+                        <li className="flex items-start gap-2">• Quem quer desenvolver hábitos de forma gradativa.</li>
+                      </ul>
+                    </div>
+
+                    {/* Para quem não é */}
+                    <div className="p-8 rounded-2xl bg-rose-50/50 border border-rose-100 space-y-4">
+                      <div className="flex items-center gap-2 text-rose-900 font-bold text-lg">
+                        <i data-lucide="alert-circle" className="w-6 h-6 text-rose-500"></i>
+                        <h3>Para quem NÃO é:</h3>
+                      </div>
+                      <ul className="space-y-3 text-sm text-rose-900/90">
+                        <li className="flex items-start gap-2">• Quem procura uma cura ou tratamento médico.</li>
+                        <li className="flex items-start gap-2">• Quem espera resultados garantidos em um prazo específico.</li>
+                        <li className="flex items-start gap-2">• Quem deseja uma dieta individualizada sem avaliação profissional.</li>
+                        <li className="flex items-start gap-2">• Quem pretende substituir acompanhamento médico ou nutricional.</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <p className="mt-8 text-center text-xs text-softGray max-w-2xl mx-auto">
+                    Aviso: Pessoas com condições clínicas, necessidades alimentares específicas ou restrições relevantes devem procurar orientação com médicos ou nutricionistas habilitados.
+                  </p>
+                </div>
+              </section>
+
+              {/* SEÇÃO 10 — OFERTA E PREÇO */}
+              <section id="oferta" className="py-20 sm:py-28 bg-gradient-to-b from-cream to-sage-100/50">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6">
+                  <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-sage-200 text-center space-y-8 relative overflow-hidden">
+                    
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold text-sage-700 uppercase tracking-widest">Oferta especial de lançamento — R$ 35,00</span>
+                      <h2 className="text-3xl sm:text-4xl font-serif font-bold text-sage-900">{SITE_CONFIG.productName}</h2>
+                      <p className="text-sm text-softGray">Guia digital educativo e ferramentas práticas de organização alimentar.</p>
+                    </div>
+
+                    <div className="bg-cream p-6 rounded-2xl border border-sage-100 text-left space-y-3 max-w-lg mx-auto">
+                      <p className="text-xs font-bold text-sage-900 uppercase">O que está incluído:</p>
+                      <ul className="space-y-2 text-xs text-softGray">
+                        <li className="flex items-center gap-2"><i data-lucide="check" className="w-4 h-4 text-sage-500"></i> Guia Digital Nova Saúde (PDF)</li>
+                        <li className="flex items-center gap-2"><i data-lucide="check" className="w-4 h-4 text-sage-500"></i> Planejador Semanal + Lista de Compras</li>
+                        <li className="flex items-center gap-2"><i data-lucide="check" className="w-4 h-4 text-sage-500"></i> Checklist de Hábitos e Organização de Despensa</li>
+                        <li className="flex items-center gap-2"><i data-lucide="check" className="w-4 h-4 text-sage-500"></i> Revisões de 30, 60 e 90 Dias</li>
+                        <li className="flex items-center gap-2"><i data-lucide="check" className="w-4 h-4 text-sage-500"></i> Aplicativo Nova Saúde (ferramenta complementar)</li>
+                      </ul>
+                    </div>
+
+                    {/* Preço */}
+                    <div className="space-y-1">
+                      <span className="text-xs text-softGray">Pagamento único de</span>
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-2xl font-bold text-sage-900">{SITE_CONFIG.currency}</span>
+                        <span className="text-5xl font-bold text-sage-900 tracking-tight">{SITE_CONFIG.price}</span>
+                      </div>
+                      <span className="text-xs text-softGray block">Sem assinaturas ou cobranças recorrentes</span>
+                    </div>
+
+                    {/* Botão de Compra */}
+                    <div className="space-y-4">
+                      <a href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy} className="w-full py-5 rounded-2xl bg-sage-900 text-white font-bold text-lg hover:bg-sage-700 transition shadow-lg shadow-sage-900/20 transform active:scale-95 block text-center">QUERO ADQUIRIR POR R$ 35,00</a>
+
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-softGray">
+                        <span className="flex items-center gap-1">
+                          <i data-lucide="lock" className="w-3.5 h-3.5 text-sage-500"></i> Pagamento Seguro
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <i data-lucide="download" className="w-3.5 h-3.5 text-sage-500"></i> Acesso Digital pela plataforma
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO — GARANTIA DE 7 DIAS */}
+              <section className="py-16 bg-cream">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center gap-8 text-center sm:text-left">
+                  <div className="shrink-0 w-36 h-36 rounded-full border-4 border-double border-sage-700 bg-white shadow-lg flex flex-col items-center justify-center text-sage-700">
+                    <i data-lucide="shield-check" className="w-12 h-12"></i>
+                    <span className="text-xs font-bold text-sage-900 mt-1 leading-tight">Garantia<br/>de 7 dias</span>
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-2xl font-serif font-bold text-sage-900">Conheça o material com tranquilidade</h2>
+                    <p className="text-sm text-softGray leading-relaxed">Você pode conhecer o material com tranquilidade. Sua compra conta com a garantia de 7 dias oferecida pela plataforma, conforme as condições aplicáveis.</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 11 — PERGUNTAS FREQUENTES */}
+              <section id="faq" className="py-16 sm:py-24 bg-sage-100 border-t border-sage-300">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6">
+                  <div className="text-center space-y-4 mb-12">
+                    <h2 className="text-3xl font-serif font-bold text-sage-900">Perguntas Frequentes</h2>
+                    <p className="text-softGray text-sm">Tire suas dúvidas de forma clara e objetiva.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      {
+                        q: "O que é o Nova Saúde — Protocolo de 90 Dias?",
+                        a: "É um guia digital educativo focado em auxiliar na organização alimentar, planejamento de compras no mercado e criação de hábitos sustentáveis para o dia a dia."
+                      },
+                      {
+                        q: "O produto é físico ou digital?",
+                        a: "Trata-se de um produto 100% digital em formato PDF. Você receberá o acesso no seu e-mail para baixar e utilizar no seu celular, tablet ou computador."
+                      },
+                      {
+                        q: "Como receberei o material?",
+                        a: "Após a confirmação do pagamento pela plataforma (Kiwify), os dados de acesso são enviados diretamente para o e-mail cadastrado na compra."
+                      },
+                      {
+                        q: "Preciso ter experiência ou comprar alimentos caros?",
+                        a: "Não. A proposta central do material é ensinar a planejar e utilizar alimentos acessíveis, do cotidiano, promovendo o aproveitamento e a economia no supermercado."
+                      },
+                      {
+                        q: "O programa exige uma dieta rígida ou garante emagrecimento?",
+                        a: "Não. O produto não é uma dieta individualizada nem garante emagrecimento. Trata-se de um material educativo focado em organização da rotina e escolhas mais conscientes."
+                      },
+                      {
+                        q: "Posso utilizar o material junto com acompanhamento profissional?",
+                        a: "Com certeza. O guia pode servir como uma excelente ferramenta de apoio para a organização prática recomendada por seu nutricionista ou médico."
+                      },
+                      { q: "O que é o aplicativo Nova Saúde?", a: "É uma ferramenta digital complementar ao protocolo, pensada para apoiar a organização de hábitos e o acompanhamento do planejamento. Não substitui acompanhamento profissional." },
+                      {
+                        q: "Como funciona a política de reembolso e suporte?",
+                        a: "A compra conta com a garantia de 7 dias oferecida pela Kiwify, conforme as condições aplicáveis. Para dúvidas, nosso suporte atende em: " + SITE_CONFIG.supportEmail
+                      }
+                    ].map((item, idx) => (
+                      <div key={idx} className="border border-sage-100 rounded-xl overflow-hidden">
+                        <button
+                          onClick={() => toggleFaq(idx)}
+                          className="w-full p-5 text-left font-semibold text-sage-900 flex justify-between items-center bg-cream/30 hover:bg-cream/60 transition"
+                        >
+                          <span>{item.q}</span>
+                          <i data-lucide={openFaq === idx ? "chevron-up" : "chevron-down"} className="w-5 h-5 text-sage-500"></i>
+                        </button>
+                        {openFaq === idx && (
+                          <div className="p-5 text-sm text-softGray bg-white border-t border-sage-100 leading-relaxed">
+                            {item.a}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* SEÇÃO 12 — CHAMADA FINAL */}
+              <section className="py-20 bg-sage-900 text-white text-center relative overflow-hidden" style={{ backgroundImage: "linear-gradient(rgba(41,76,58,.88),rgba(41,76,58,.88)), url(https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=1400)", backgroundSize: "cover", backgroundPosition: "center" }}>
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-6">
+                  <h2 className="text-3xl sm:text-4xl font-serif font-bold">Comece organizando o próximo passo.</h2>
+                  <p className="text-sage-100/80 text-base max-w-xl mx-auto">
+                    Você não precisa mudar tudo de uma vez. Comece com planejamento, escolhas possíveis e hábitos que façam sentido para sua rotina.
+                  </p>
+                  <div>
+                    <a 
+                      href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy}
+                      className="inline-block px-8 py-4 rounded-xl bg-white text-sage-900 font-bold hover:bg-sage-50 transition shadow-lg"
+                    >
+                      QUERO COMEÇAR POR R$ 35,00
+                    </a>
+                  </div>
+                </div>
+              </section>
+            </main>
+
+            {/* SEÇÃO 13 — RODAPÉ */}
+            <footer className="bg-sage-900 text-sage-300 py-12 pb-24 md:pb-12 border-t border-sage-700 text-xs">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+                
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-sage-700/60 pb-6">
+                  <span className="font-serif font-bold text-lg text-white">{SITE_CONFIG.productName}</span>
+                  <div className="flex gap-6">
+                    <a href="termos.html" className="hover:text-white transition">Termos de Uso</a>
+                    <a href="privacidade.html" className="hover:text-white transition">Privacidade</a>
+                    <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="hover:text-white transition">Contato</a>
+                  </div>
+                </div>
+
+                <div className="bg-sage-900/50 p-4 rounded-xl border border-sage-700/50 text-sage-300/80 leading-relaxed text-[11px]">
+                  <strong>Aviso Importante:</strong> Este material possui finalidade exclusivamente educativa e informativa. Não substitui avaliação, diagnóstico, tratamento ou orientação individualizada de médicos, nutricionistas ou outros profissionais habilitados. Os resultados variam de pessoa para pessoa. O produto não garante emagrecimento nem alterações específicas em exames laboratoriais.
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px]">
+                  <p>© {new Date().getFullYear()} {SITE_CONFIG.companyName}. Todos os direitos reservados.</p>
+                  <p>Suporte: {SITE_CONFIG.supportEmail}</p>
+                </div>
+
+              </div>
+            </footer>
+
+            <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-cream/95 backdrop-blur border-t border-sage-100 p-3 flex items-center gap-3">
+              <div className="leading-tight"><p className="text-[11px] text-softGray">Lançamento</p><p className="font-bold text-lg">R$ 35,00</p></div>
+              <a href={SITE_CONFIG.checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={trackBuy} className="flex-1 text-center py-3 rounded-xl bg-sage-900 text-white font-bold text-sm">QUERO COMPRAR</a>
+            </div>
+
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
